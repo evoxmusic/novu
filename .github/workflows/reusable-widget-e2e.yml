@@ -59,6 +59,7 @@ jobs:
         with:
           cypress_version: 12.9.0
           cypress: true
+      - uses: ./.github/actions/setup-redis-cluster
       - uses: mansagroup/nrwl-nx-action@v3
         with:
           targets: lint
@@ -71,6 +72,8 @@ jobs:
 
       - uses: ./.github/actions/run-backend
         with:
+          cypress_github_oauth_client_id: ${{ secrets.CYPRESS_GITHUB_OAUTH_CLIENT_ID }}
+          cypress_github_oauth_client_secret: ${{ secrets.CYPRESS_GITHUB_OAUTH_CLIENT_SECRET }}
           launch_darkly_sdk_key: ${{ secrets.LAUNCH_DARKLY_SDK_KEY }}
 
       # Runs a single command using the runners shell
@@ -85,7 +88,7 @@ jobs:
           cp apps/ws/src/.env.test apps/ws/dist/src/.env.test
           cd apps/ws && pnpm start:prod &
 
-       - name: Wait on Widget and WS Services
+      - name: Wait on Widget and WS Services
         run: wait-on --timeout=180000 http://localhost:1340/v1/health-check http://localhost:3500
 
       - name: Cypress install
